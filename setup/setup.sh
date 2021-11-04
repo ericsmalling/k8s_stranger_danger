@@ -14,18 +14,30 @@ kubectl apply -f cluster_roles.yaml
 kubectl apply -f role_bindings.yaml
 
 # Wait for the nodes to become ready
-kubectl wait --for=condition=ready node --all
+# kubectl wait --for=condition=ready node --all
 
 # Apply the role for the Ingress controller
-kubectl apply -f ingress_ns_role.yaml
+#kubectl apply -f ingress_ns_role.yaml
 
 # Configure and install the Ingress controller
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/legacy/deploy/static/provider/kind/deploy.yaml
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.0.3/deploy/static/provider/aws/deploy.yaml
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/legacy/deploy/static/provider/kind/deploy.yaml
+kubectl apply -f https://projectcontour.io/quickstart/contour.yaml
 
 # Wait for the Ingress controller to become ready
-kubectl wait --namespace ingress-nginx \
+# kubectl wait --namespace ingress-nginx \
+#   --for=condition=ready pod \
+#   --selector=app.kubernetes.io/component=controller \
+#   --timeout=90s
+kubectl wait --namespace projectcontour \
   --for=condition=ready pod \
-  --selector=app.kubernetes.io/component=controller \
+  --selector=app=countour \
+  --timeout=90s
+
+kubectl wait --namespace projectcontour \
+  --for=condition=ready pod \
+  --selector=app=envoy \
   --timeout=90s
 
 # Create and configure the 'secure' namespace
